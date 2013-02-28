@@ -54,32 +54,6 @@ my $app = sub {
     ];
 };
 
-# {
-#     eval {
-#         $app = builder {
-#             enable 'Debug', panels => [ [ 'Mongo::ServerStatus' ] ];
-#             $app;
-#         };
-#     };
-#     like $@, qr|Cannot find MongoDB connection options|, 'Mongo-ServerStatus: croak without connection options';
-
-#     eval {
-#         $app = builder {
-#             enable 'Debug', panels => [ [ 'Mongo::ServerStatus', connection => [] ] ];
-#             $app;
-#         };
-#     };
-#     like $@, qr|Connection options should be passed as hash ref|, 'Mongo-ServerStatus: croak without hash ref';
-
-#     eval {
-#         $app = builder {
-#             enable 'Debug', panels => [ [ 'Mongo::ServerStatus', connection => {} ] ];
-#             $app;
-#         };
-#     };
-#     like $@, qr|Missed required parameter host|, 'Mongo-ServerStatus: croak without host';
-# }
-
 {
     $app = builder {
         enable 'Debug',
