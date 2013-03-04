@@ -9,3 +9,4 @@ t/01_serverstatus.t
 t/99_pod.t
 lib/Plack/Middleware/Debug/Mongo.pm
 lib/Plack/Middleware/Debug/Mongo/ServerStatus.pm
+lib/Plack/Middleware/Debug/Mongo/Database.pm
