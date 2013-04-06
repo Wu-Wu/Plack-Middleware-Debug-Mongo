@@ -1,5 +1,7 @@
 package Plack::Middleware::Debug::Mongo::ServerStatus;
 
+# ABSTRACT: Server status debug panel for Plack::Middleware::Debug
+
 use strict;
 use warnings;
 use parent 'Plack::Middleware::Debug::Base';
@@ -7,7 +9,8 @@ use Plack::Util::Accessor qw/connection mongo_client/;
 use MongoDB 0.502;
 use Exporter 'import';
 
-our $VERSION = '0.02';
+# VERSION
+# AUTHORITY
 
 our %EXPORT_TAGS = (
     'all' => [ qw(hashwalk) ]
@@ -70,17 +73,10 @@ sub hashwalk {
 }
 
 1; # End of Plack::Middleware::Debug::Mongo::ServerStatus
+
 __END__
 
 =pod
-
-=head1 NAME
-
-Plack::Middleware::Debug::Mongo::ServerStatus - Server status debug panel for Plack::Middleware::Debug
-
-=head1 VERSION
-
-version 0.02
 
 =head1 SYNOPSIS
 
@@ -153,16 +149,5 @@ L<DateTime>
 L<boolean>
 
 L<MongoDB Server Status Reference|http://docs.mongodb.org/manual/reference/server-status/>
-
-=head1 AUTHOR
-
-Anton Gerasimov, E<lt>chim@cpan.orgE<gt>
-
-=head1 COPYRIGHT AND LICENSE
-
-Copyright (C) 2013 by Anton Gerasimov
-
-This library is free software; you can redistribute it and/or modify it
-under the same terms as Perl itself.
 
 =cut

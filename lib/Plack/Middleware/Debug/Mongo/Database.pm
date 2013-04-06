@@ -1,5 +1,7 @@
 package Plack::Middleware::Debug::Mongo::Database;
 
+# ABSTRACT: Mongo database debug panel for Plack::Middleware::Debug
+
 use strict;
 use warnings;
 use parent 'Plack::Middleware::Debug::Base';
@@ -7,7 +9,8 @@ use Plack::Util::Accessor qw/connection mongo_client/;
 use MongoDB 0.502;
 use Plack::Middleware::Debug::Mongo::ServerStatus 'hashwalk';
 
-our $VERSION = '0.01';
+# VERSION
+# AUTHORITY
 
 sub prepare_app {
     my ($self) = @_;
@@ -49,17 +52,10 @@ sub run {
 }
 
 1; # End of Plack::Middleware::Debug::Mongo::Database
+
 __END__
 
 =pod
-
-=head1 NAME
-
-Plack::Middleware::Debug::Mongo::Database - Mongo database debug panel for Plack::Middleware::Debug
-
-=head1 VERSION
-
-version 0.01
 
 =head1 SYNOPSIS
 
@@ -152,16 +148,5 @@ L<MongoDB::MongoClient>
 L<MongoDB Database Statistics Reference|http://docs.mongodb.org/manual/reference/database-statistics/>
 
 L<MongoDB Collection Statistics Reference|http://docs.mongodb.org/manual/reference/collection-statistics/>
-
-=head1 AUTHOR
-
-Anton Gerasimov, E<lt>chim@cpan.orgE<gt>
-
-=head1 COPYRIGHT AND LICENSE
-
-Copyright (C) 2013 by Anton Gerasimov
-
-This library is free software; you can redistribute it and/or modify it
-under the same terms as Perl itself.
 
 =cut

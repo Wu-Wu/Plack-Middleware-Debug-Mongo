@@ -1,5 +1,8 @@
 Revision history for Perl extension Plack::Middleware::Debug::Mongo.
 
+{{$NEXT}}
+    - dzillify distribution
+
 0.02  Mon Mar 4 12:01:07 2013
     - added hashwalk() export and updated *.t
     - added database statistics module and *.t

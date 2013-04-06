@@ -1,18 +1,12 @@
-package Plack::Middleware::Debug::Mongo;
-
-# ABSTRACT: Extend Plack::Middleware::Debug with MongoDB panels
-
-use strict;
-use warnings;
-
-# VERSION
-# AUTHORITY
-
-1; # End of Plack::Middleware::Debug::Mongo
-
-__END__
-
 =pod
+
+=head1 NAME
+
+Plack::Middleware::Debug::Mongo - Extend Plack::Middleware::Debug with MongoDB panels
+
+=head1 VERSION
+
+version 0.03
 
 =head1 SYNOPSIS
 
@@ -76,4 +70,14 @@ L<MongoDB Database Statistics Reference|http://docs.mongodb.org/manual/reference
 
 L<MongoDB Collection Statistics Reference|http://docs.mongodb.org/manual/reference/collection-statistics/>
 
-=cut
+=head1 AUTHOR
+
+Anton Gerasimov <chim@cpan.org>
+
+=head1 COPYRIGHT AND LICENSE
+
+This software is copyright (c) 2013 by Anton Gerasimov.
+
+This is free software; you can redistribute it and/or modify it under
+the same terms as the Perl 5 programming language system itself.
+
