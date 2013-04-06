@@ -4,46 +4,9 @@ use Plack::Test;
 use Plack::Builder;
 use HTTP::Request::Common;
 use Test::More;
-use Test::MockObject;
-use MongoDB;
-use boolean ();
+use t::lib::FakeMongoDB;
 
-my $SERVER_STATUS = {
-    'ok'        => 1,
-    'version'   => '2.2.0',
-    'uptime'    => 1738371,
-    'process'   => 'mongod',
-    'network'   => {
-        'bytesIn'       => 43218,
-        'bytesOut'      => 9235789924,
-        'numRequests'   => 548
-    },
-    'mem'       => {
-        'bits'              => 64,
-        'mapped'            => 1056,
-        'mappedWithJournal' => 2112,
-        'note'              => 'not all mem info support on this platform',
-        'supported'         => boolean::false
-    },
-    'writeBacksQueued'  => boolean::true,
-};
-
-# Faked items: mongo, client, database, cursor, collection
-my ($mdb, $cli, $dbh, $cur, $col);
-
-BEGIN {
-    ($mdb, $cli, $dbh, $cur, $col) = map { Test::MockObject->new } 1..5;
-
-    Test::MockObject->fake_module('MongoDB',              new => sub { $mdb });
-    Test::MockObject->fake_module('MongoDB::MongoClient', new => sub { $cli });
-    Test::MockObject->fake_module('MongoDB::Database',    new => sub { $dbh });
-    Test::MockObject->fake_module('MongoDB::Cursor',      new => sub { $cur });
-    Test::MockObject->fake_module('MongoDB::Collection',  new => sub { $col });
-
-    $mdb->mock('VERSION'      => sub { '0.502' });
-    $cli->mock('get_database' => sub { $dbh });
-    $dbh->mock('run_command'  => sub { $SERVER_STATUS });
-}
+t::lib::FakeMongoDB->run;
 
 {
     use Plack::Middleware::Debug::Mongo::ServerStatus 'hashwalk';
@@ -52,13 +15,7 @@ BEGIN {
 }
 
 # simple application
-my $app = sub {
-    [
-        200,
-        [ 'Content-Type' => 'text/html' ],
-        [ '<html><body>OK</body></html>' ]
-    ];
-};
+my $app = sub {[ 200, [ 'Content-Type' => 'text/html' ], [ '<html><body>OK</body></html>' ] ]};
 
 {
     $app = builder {

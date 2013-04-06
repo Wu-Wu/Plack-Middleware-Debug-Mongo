@@ -4,98 +4,17 @@ use Plack::Test;
 use Plack::Builder;
 use HTTP::Request::Common;
 use Test::More;
-use Test::MockObject;
-use MongoDB;
+use t::lib::FakeMongoDB;
+
+t::lib::FakeMongoDB->run;
 
 {
     use Plack::Middleware::Debug::Mongo::Database;
     can_ok 'Plack::Middleware::Debug::Mongo::Database', qw/prepare_app run/;
 }
 
-# Faked items: mongo, client, database, cursor, collection
-my ($mdb, $cli, $dbh, $cur, $col);
-
-my $STATS = {
-    'db' => {
-        'avgObjSize'        => 643.318918918919,
-        'collections'       => 8,
-        'flags'             => 1,
-        'dataSize'          => 476056,
-        'db'                => 'sampledb',
-        'fileSize'          => 201326592,
-        'indexSize'         => 81760,
-        'indexes'           => 6,
-        'nsSizeMB'          => 16,
-        'numExtents'        => 11,
-        'objects'           => 740,
-        'ok'                => 1,
-        'storageSize'       => 585728,
-    },
-    'models' => {
-        'avgObjSize'        => 1459.75,
-        'count'             => 16,
-        'flags'             => 1,
-        'indexSizes'        => {
-            '_id_'  => 8176,
-        },
-        'lastExtentSize'    => 24576,
-        'nindexes'          => 1,
-        'ns'                => 'sampledb.models',
-        'numExtents'        => 1,
-        'ok'                => 1,
-        'paddingFactor'     => 1,
-        'size'              => 23356,
-        'storageSize'       => 24576,
-        'totalIndexSize'    => 8176,
-    },
-    'sessions' => {
-        'avgObjSize'        => 1074.67768595041,
-        'count'             => 363,
-        'flags'             => 1,
-        'indexSizes'        => {
-            '_id_'  => 24528,
-        },
-        'lastExtentSize'    => 327680,
-        'nindexes'          => 1,
-        'ns'                => 'sampledb.sessions',
-        'numExtents'        => 3,
-        'ok'                => 1,
-        'paddingFactor'     => 1,
-        'size'              => 390108,
-        'storageSize'       => 430080,
-        'totalIndexSize'    => 24528,
-    }
-};
-
-BEGIN {
-    ($mdb, $cli, $dbh, $cur, $col) = map { Test::MockObject->new } 1..5;
-
-    Test::MockObject->fake_module('MongoDB',              new => sub { $mdb });
-    Test::MockObject->fake_module('MongoDB::MongoClient', new => sub { $cli });
-    Test::MockObject->fake_module('MongoDB::Database',    new => sub { $dbh });
-    Test::MockObject->fake_module('MongoDB::Cursor',      new => sub { $cur });
-    Test::MockObject->fake_module('MongoDB::Collection',  new => sub { $col });
-
-    $mdb->mock('VERSION'      => sub { '0.502' });
-    $cli->mock('get_database' => sub { $dbh });
-    $dbh->mock('collection_names' => sub { (qw(models sessions)) });
-    $dbh->mock('run_command'  => sub {
-        my ($self, $args) = @_;
-        exists $args->{dbStats}
-            ? $STATS->{db}
-            : (exists $args->{collStats} && exists $STATS->{$args->{collStats}})
-                ? $STATS->{$args->{collStats}}
-                : {};
-    });
-}
-
-my $app = sub {
-    [
-        200,
-        [ 'Content-Type' => 'text/html' ],
-        [ '<html><body>OK</body></html>' ]
-    ];
-};
+# simple application
+my $app = sub {[ 200, [ 'Content-Type' => 'text/html' ], [ '<html><body>OK</body></html>' ] ]};
 
 {
     $app = builder {
