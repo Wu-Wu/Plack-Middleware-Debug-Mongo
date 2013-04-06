@@ -1,6 +1,7 @@
 Revision history for Perl extension Plack::Middleware::Debug::Mongo.
 
 {{$NEXT}}
+    - update tests
     - added integration with Travis-CI.org
     - dzillify distribution
 
