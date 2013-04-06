@@ -8,54 +8,56 @@ use t::lib::FakeMongoDB;
 
 t::lib::FakeMongoDB->run;
 
-{
-    use Plack::Middleware::Debug::Mongo::ServerStatus 'hashwalk';
-    can_ok 'Plack::Middleware::Debug::Mongo::ServerStatus', qw/prepare_app run/;
-    ok(defined &hashwalk, 'Mongo-ServerStatus: hashwalk imported');
-}
+use Plack::Middleware::Debug::Mongo::ServerStatus 'hashwalk';
+can_ok 'Plack::Middleware::Debug::Mongo::ServerStatus', qw/prepare_app run/;
+ok defined(&hashwalk), 'hashwalk imported okay';
 
 # simple application
 my $app = sub {[ 200, [ 'Content-Type' => 'text/html' ], [ '<html><body>OK</body></html>' ] ]};
 
-{
-    $app = builder {
-        enable 'Debug',
-            panels => [
-                [ 'Mongo::ServerStatus', connection => { host => 'mongodb://localhost:27017', db_name => 'sampledb' } ],
-            ];
-        $app;
-    };
+$app = builder {
+    enable 'Debug',
+        panels => [
+            [ 'Mongo::ServerStatus', connection => { host => 'mongodb://localhost:27017', db_name => 'sampledb' } ],
+        ];
+    $app;
+};
 
-    test_psgi $app, sub {
-        my ($cb) = @_;
+my @items = (
+    'ok'                    => 1,
+    'version'               => '2.2.0',
+    'uptime'                => 1738371,
+    'process'               => 'mongod',
+    'network.bytesIn'       => 43218,
+    'network.bytesOut'      => 9235789924,
+    'network.numRequests'   => 548,
+    'mem.bits'              => 64,
+    'mem.mapped'            => 1056,
+    'mem.mappedWithJournal' => 2112,
+    'mem.note'              => 'not all mem.*',
+    'mem.supported'         => 'false',
+    'writeBacksQueued'      => 'true',
+);
 
-        my $res = $cb->(GET '/');
-        is $res->code, 200, 'Mongo-ServerStatus: response code 200';
+test_psgi $app, sub {
+    my ($cb) = @_;
 
+    my $res = $cb->(GET '/');
+    is $res->code, 200, 'response code 200';
+
+    like $res->content,
+        qr|<a href="#" title="Mongo::ServerStatus" class="plDebugServerStatus\d+Panel">|m,
+        'status panel found';
+
+    like $res->content,
+        qr|<small>Version: \d\.\d{1,2}\.\d{1,2}</small>|,
+        'subtitle points to mongod version';
+
+    while (my ($key, $value) = splice(@items, 0, 2)) {
         like $res->content,
-            qr|<a href="#" title="Mongo::ServerStatus" class="plDebugServerStatus\d+Panel">|m,
-            'Mongo-ServerStatus: panel found';
-
-        like $res->content,
-            qr|<small>Version: \d\.\d{1,2}\.\d{1,2}</small>|,
-            'Mongo-ServerStatus: subtitle points to mongod version';
-
-        like $res->content,
-            qr|<td>uptime</td>[.\s\n\r]*<td>1738371</td>|m,
-            'Mongo-ServerStatus: found uptime and its value';
-
-        like $res->content,
-            qr|<td>network.bytesOut</td>[.\s\n\r]*<td>9235789924</td>|m,
-            'Mongo-ServerStatus: found network.bytesOut and its value';
-
-        like $res->content,
-            qr|<td>mem.bits</td>[.\s\n\r]*<td>64</td>|m,
-            'Mongo-ServerStatus: found mem.bits and its value';
-
-        like $res->content,
-            qr|<td>mem.supported</td>[.\s\n\r]*<td>false</td>|m,
-            'Mongo-ServerStatus: found mem.supported and its value (translated from boolean)';
-    };
-}
+            qr|<td>$key</td>[.\s\n\r]*<td>$value</td>|m,
+            'got expected value for ' . $key;
+    }
+};
 
 done_testing();
